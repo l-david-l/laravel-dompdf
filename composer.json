@@ -3,12 +3,6 @@
     "description": "A fork of barryvdh/laravel-dompdf with no PNG alpha processing. A DOMPDF Wrapper for Laravel",
     "license": "MIT",
     "keywords": ["laravel", "dompdf", "pdf"],
-    "authors": [
-        {
-            "name": "Barry vd. Heuvel",
-            "email": "barryvdh@gmail.com"
-        }
-    ],
     "require": {
         "php": "^7.2 || ^8.0",
         "l-david-l/dompdf-no-alpha-png": "^1",
