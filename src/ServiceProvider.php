@@ -9,7 +9,6 @@ use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -23,32 +22,40 @@ class ServiceProvider extends IlluminateServiceProvider
      * @throws \Exception
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $configPath = __DIR__ . '/../config/dompdf.php';
         $this->mergeConfigFrom($configPath, 'dompdf');
 
-        $this->app->bind('dompdf.options', function () {
-            $defines = $this->app['config']->get('dompdf.defines');
+        $this->app->bind('dompdf.options', function ($app) {
+            $defines = $app['config']->get('dompdf.defines');
 
             if ($defines) {
                 $options = [];
+                /**
+                 * @var string $key
+                 * @var mixed $value
+                 */
                 foreach ($defines as $key => $value) {
                     $key = strtolower(str_replace('DOMPDF_', '', $key));
                     $options[$key] = $value;
                 }
             } else {
-                $options = $this->app['config']->get('dompdf.options');
+                $options = $app['config']->get('dompdf.options');
             }
 
             return $options;
         });
 
-        $this->app->bind('dompdf', function () {
+        $this->app->bind('dompdf', function ($app) {
 
-            $options = $this->app->make('dompdf.options');
+            $options = $app->make('dompdf.options');
             $dompdf = new Dompdf($options);
-            $dompdf->setBasePath(realpath(base_path('public')));
+            $path = realpath($app['config']->get('dompdf.public_path') ?: base_path('public'));
+            if ($path === false) {
+                throw new \RuntimeException('Cannot resolve public path');
+            }
+            $dompdf->setBasePath($path);
 
             return $dompdf;
         });
@@ -61,15 +68,13 @@ class ServiceProvider extends IlluminateServiceProvider
 
     /**
      * Check if package is running under Lumen app
-     *
-     * @return bool
      */
-    protected function isLumen()
+    protected function isLumen(): bool
     {
         return Str::contains($this->app->version(), 'Lumen') === true;
     }
 
-    public function boot()
+    public function boot(): void
     {
         if (! $this->isLumen()) {
             $configPath = __DIR__ . '/../config/dompdf.php';
@@ -80,10 +85,10 @@ class ServiceProvider extends IlluminateServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return array<string>
      */
-    public function provides()
+    public function provides(): array
     {
-        return array('dompdf', 'dompdf.options', 'dompdf.wrapper');
+        return ['dompdf', 'dompdf.options', 'dompdf.wrapper'];
     }
 }
