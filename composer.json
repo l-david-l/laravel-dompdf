@@ -15,7 +15,7 @@
     ],
     "require": {
         "php": "^7.2 || ^8.0",
-        "l-david-l/dompdf-no-alpha-png": "master",
+        "l-david-l/dompdf-no-alpha-png": "v2.0.0",
         "illuminate/support": "^6|^7|^8|^9|^10|^11|^12"
     },
     "require-dev": {
